@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html  lang="zh-cmn-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=2.0"/>
+  <title>mobile下拉刷新详情demo</title>
+  <style>
+* {
+  padding: 0;
+  margin: 0;
+}
+html,body{
+  font-size: 10px;
+  width: 100%;
+  height: 100%;
+  background-color: #aaa;
+}
+body {
+  font-size: 16px;
+  webkit-overflow-scrolling: touch;
+}
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4rem;
+  line-height: 4rem;
+  text-align: center;
+  color: #fff;
+  background-color: #0DA093;
+  z-index: 999;
+}
+footer{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  line-height: 3rem;
+  text-align: center;
+  color: #fff;
+  background-color: #D46464;
+  z-index: 999;
+}
+.wrapper-box {
+  padding-top: 4rem;
+  padding-bottom: 3rem;
+  box-sizing:border-box;
+}
+.wrapper p {
+  color: #333;
+  line-height: 5;
+  padding: 0 1.4rem;
+  border-bottom: 1px solid #FFD1B1;
+}
+.content {
+  background-color: #fff;
+}
+/*--------必需样式-------------*/
+.wrapper-box{
+  overflow: hidden;
+}
+.wrapper {
+  transform: translate(0, -60px) translateZ(0);
+}
+.pullDown {
+  display: none;
+  height: 6rem;
+  line-height: 6rem;
+  color: #666;
+  background-color: #ddd;
+  text-align: center;
+}
+.pagetwo{
+  background-color: #D4F7E5;
+}
+</style>
+<body>
+  <header>mobile下拉刷新详情demo</header>
+  <div class="wrapper-box">
+    <div class="wrapper">
+      <div class="pullDown">下拉即可刷新...</div>
+      <div class="content">
+        <div class="pageone">
+          <p>内容1</p>
+          <p>内容2</p>
+          <p>内容3</p>
+          <p>内容4</p>
+          <p>内容5</p>
+          <p>内容6</p>
+          <p>内容7</p>
+          <p>内容8</p>
+        </div>
+        <div class="pagetwo">
+          <p>第二页1</p>
+          <p>第二页2</p>
+          <p>第二页3</p>
+          <p>第二页4</p>
+          <p>第二页5</p>
+          <p>第二页6</p>
+          <p>第二页7</p>
+          <p>第二页8</p>
+          <p>第二页9</p>
+          <p>第二页10</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>底部固定</footer>
+</body>
+  <script type="text/javascript"src="../js/jquery.js"></script>
+  <script type="text/javascript"src="../js/loading.js"></script>
+  <script>
+var load;
+var t;
+var index=0;
+var pullDown= $(".pullDown");
+var twoY;
+var resizeHeight=function(){
+  if(index==0){
+    $(".pagetwo").hide();
+    load.resizeheight();
+    $(".pagetwo").show();
+  }else{
+    var h = window.innerHeight - 70;
+    $(".pagetwo").height($(".pagetwo").height() <= h ? h  : "auto");
+    $(".wrapper-box").height($(".pagetwo").height());
+  }
+}
+window.onload=function() {
+  $(".pagetwo").hide();
+  load=new Load( {
+    hasPullDown:true, //是否下拉功能
+    hasPullUp:true, //是否上拉功能
+    onPullDownStart:function() {
+      console.log("onPullDownStart")
+      if(index==0){
+        pullDown.text("下拉即可刷新...");
+      }
+    }
+    , onPullDownReach:function() {
+      console.log("onPullDownReach")
+      pullDown.text("释放即可刷新");
+    }
+    , onPullDownUnReach:function() {
+      console.log("onPullDownUnReach")
+      pullDown.text("下拉即可刷新...");
+    }
+    , onPullDownRefresh:function() {
+      console.log("onPullDownRefresh")
+       if(index==0){
+        pullDown.text("正在加载...");
+        t&&clearTimeout(t);
+        t=setTimeout(function() {
+          load.refreshToStart()
+        }
+        , 2000)
+      }else{
+        index=0;
+        load.translate(-pullDown.height());
+        pullDown.show();
+      }
+    }
+    , onPullDownEnd:function(y) {
+      console.log("onPullDownEnd")
+      pullDown.text("下拉即可刷新...");
+      if(index==1){
+        if(y>twoY+pullDown.height()){
+          index=0;
+          load.translate(-pullDown.height());
+          resizeHeight();
+          window.scroll(0,0);
+          return false;
+        }else{
+          load.translate(twoY);
+          return false;
+        }
+      }
+    }
+    , onPullUpStart:function() {
+      console.log("onPullUpStart")
+    }
+    , onPullUpEnd:function(y) {
+      console.log("onPullUpEnd",y,index)
+      if(index==0){
+        if(y<-120){
+          index=1;
+          load.translate(twoY);
+          resizeHeight();
+          window.scroll(0,0);
+          return false;
+        } 
+      }else{
+        if(y>twoY+pullDown.height()){
+          index=0;
+          load.translate(-pullDown.height());
+          resizeHeight();
+          window.scroll(0,0);
+          return false;
+        }else{
+          load.translate(twoY);
+          return false;
+        }
+      }
+    }
+  }
+  );
+  $(".pageone").height($(".content").height());
+  twoY=-$(".pageone").height()-pullDown.height();
+  $(".pagetwo").show();
+  console.log(load);
+}
+</script>
+</html>
