@@ -1,8 +1,9 @@
-# loading
+<h1># loading</h1>
 移动端的向下向上滚动加载更多
 只支持移动端查看效果
 
-参数
+<h3>参数</h3>
+<pre>
 options = {
 		hasPullDown: false,     			//是否下拉功能
 		hasPullUp: false,			  		   //是否上拉功能
@@ -25,8 +26,11 @@ options = {
 		onPullUpRefresh: null,
 		onPullUpEnd: null
 	}
+</pre>
 
-方法 
-translate (控制目标css3 translateY)
-refreshToStart(还原到初始状态)
-resizeheight(重新获取目标高度)
+<h3>方法 </h3>
+<pre>
+		translate (控制目标css3 translateY)
+		refreshToStart(还原到初始状态)
+		resizeheight(重新获取目标高度)
+</pre>
